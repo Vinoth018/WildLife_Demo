@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +43,80 @@
 
     <footer class="bg-light text-center text-lg-start mt-auto">
         <div class="container p-4">
-            <p class="text-center" style="padding-bottom: -10px;">© 2024 Telungana Government Proof of Concept</p>
+            <p class="text-center" style="padding-bottom: -10px;">Copyright © 2024 Government of Telangana Proof of Concept</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html> -->
+
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        .header {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+        .botom {
+            display: flex;
+            color: black;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: black;
+        }
+        h5 {
+            padding-top: 10px;
+        }
+        input {
+            margin-left: 75px;
+        }
+        .centered-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="header">
+            <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px;"></div>
+            <div><h5 style="justify-content: center;">Early Tree Falls Detection</h5></div>
+            <div class="botom">
+                <a href="/">Species</a>
+                <a href="/fire">Fire</a>
+                <a href="/poaching">Poaching</a>
+                <a href="/behaviour">Behaviour</a>
+                <a href="/treefalls">Tree Falls</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container text-center mt-5">
+        <h1 class="display-4">Early Tree Falls Detection</h1>
+        <h3 class="lead">Under Developement</h3>
+    </div>
+
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <p class="text-center" style="padding-bottom: -10px;">Copyright © 2024 Government of Telungana Proof of Concept</p>
         </div>
     </footer>
 

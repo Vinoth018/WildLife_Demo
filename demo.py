@@ -53,18 +53,7 @@ def generate_frames(input_video_path):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-    # def generate_frames(input_video_path):
+# def generate_frames(input_video_path):
 #     # Open the video file
 #     cap = cv2.VideoCapture(input_video_path)
 
@@ -89,20 +78,13 @@ def generate_frames(input_video_path):
 #             continue
 
 #         # Convert to bytes
-#         frame_bytes = buffer.tobytes()
+#         frame_bytes = buffer.tobytes()00000000000000000000000000000000
 
 #         # Yield frame in HTTP response format
 #         yield (b'--frame\r\n'
 #                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
 #     cap.release()
-
-
-
-
-
-
-
+                                                                                                                
 
 
 

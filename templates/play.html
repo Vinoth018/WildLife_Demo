@@ -284,6 +284,7 @@
                     predictions.forEach(prediction => {
                         const label = prediction.label;
                         const confidence = prediction.confidence.toFixed(2);
+                        const sector = prediction.sector || 'No sector';  // Handle missing sector info
 
                         if (!displayedLabels.has(label) || !lastUpdateTimes[label] || now - lastUpdateTimes[label] > 5 * 60 * 1000) {
                             if (!displayedLabels.has(label)) {
@@ -291,7 +292,7 @@
                             }
                             
                             const p = document.createElement('p');
-                            p.textContent = `Detected label: ${label} with confidence: ${confidence}`;
+                            p.textContent = `Detected label: ${label} with confidence: ${confidence} ${sector}`;
                             predictionsDiv.appendChild(p);
                             
                             lastUpdateTimes[label] = now;

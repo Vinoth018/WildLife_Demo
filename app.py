@@ -1,6 +1,6 @@
 # import os
 # import cv2
-# from flask import Flask, Response, request, render_template, redirect, url_for
+# from flask import Flask, Response, request, render_template, redirect, url_for, jsonify
 # from inference import get_model
 # import supervision as sv
 # from werkzeug.utils import secure_filename
@@ -21,10 +21,11 @@
 # os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # input_video_path = None
-
+# latest_predictions = []
 
 # def generate_frames(input_video_path):
-#     # Open the video file
+#     global latest_predictions
+#     sector = "SEC 1"  # You can set this dynamically based on your requirements
 #     cap = cv2.VideoCapture(input_video_path)
 #     while cap.isOpened():
 #         ret, frame = cap.read()
@@ -36,13 +37,9 @@
 #         results = model.infer(frame)[0]
 #         # Check if predictions are available
 #         if results.predictions:
-#             print(f"Number of predictions: {len(results.predictions)}")
-#             for prediction in results.predictions:
-#                 label = prediction.class_name
-#                 confidence = prediction.confidence  # Assuming `confidence` attribute exists
-#                 print(f"Detected label: {label} with confidence: {confidence:.2f}")
+#             latest_predictions = [{"label": prediction.class_name, "confidence": prediction.confidence, "sector": sector} for prediction in results.predictions]
 #         else:
-#             print("No predictions made.")
+#             latest_predictions = []
 #         # Load the results into the supervision Detections API
 #         detections = sv.Detections.from_inference(results)
 #         # Annotate the frame with bounding boxes and labels
@@ -58,6 +55,7 @@
 #         yield (b'--frame\r\n'
 #                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 #     cap.release()
+
 
 # @app.route('/')
 # def index():
@@ -79,6 +77,16 @@
 #         return 'File uploaded successfully', 200
 #     return 'File upload failed', 400
 
+# @app.route('/assign_sector', methods=['POST'])
+# def assign_sector():
+#     global latest_predictions
+#     sector = request.form.get('sector')
+#     if sector and latest_predictions:
+#         for prediction in latest_predictions:
+#             prediction['sector'] = sector
+#     return 'Sector assigned successfully', 200
+
+
 # @app.route('/play')
 # def play():
 #     return render_template('play.html')
@@ -87,6 +95,10 @@
 # def video_feed():
 #     return Response(generate_frames(input_video_path),
 #                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# @app.route('/latest_predictions')
+# def get_latest_predictions():
+#     return jsonify(latest_predictions)
 
 # @app.route('/fire')
 # def fire():
@@ -113,27 +125,14 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import os
 import cv2
+import pymysql.cursors
 from flask import Flask, Response, request, render_template, redirect, url_for, jsonify
 from inference import get_model
 import supervision as sv
 from werkzeug.utils import secure_filename
+import random
 
 # Your Roboflow API key
 API_KEY = "rQ5TGMhiCaT0WP8Y0p6u"
@@ -152,10 +151,36 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 input_video_path = None
 latest_predictions = []
+sector = None  # Initialize sector variable
+
+# MySQL database connection settings
+connection = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='0108',
+    database='wildlife',
+    cursorclass=pymysql.cursors.DictCursor
+)
+
+def get_random_sector():
+    # Generate a random number between 1 and 100 for sectors
+    sector_number = random.randint(1, 100)
+    return f"SEC {sector_number}"
+
+def save_predictions_to_db(predictions):
+    try:
+        with connection.cursor() as cursor:
+            for prediction in predictions:
+                sql = "INSERT INTO detections (detected_label, confidence, sector) VALUES (%s, %s, %s)"
+                cursor.execute(sql, (prediction['label'], prediction['confidence'], prediction['sector']))
+            connection.commit()
+    except Exception as e:
+        print(f"Error saving to database: {e}")
 
 def generate_frames(input_video_path):
     global latest_predictions
-    # Open the video file
+    global sector
+
     cap = cv2.VideoCapture(input_video_path)
     while cap.isOpened():
         ret, frame = cap.read()
@@ -167,7 +192,8 @@ def generate_frames(input_video_path):
         results = model.infer(frame)[0]
         # Check if predictions are available
         if results.predictions:
-            latest_predictions = [{"label": prediction.class_name, "confidence": prediction.confidence} for prediction in results.predictions]
+            latest_predictions = [{"label": prediction.class_name, "confidence": prediction.confidence, "sector": sector} for prediction in results.predictions]
+            save_predictions_to_db(latest_predictions)  # Save to database
         else:
             latest_predictions = []
         # Load the results into the supervision Detections API
@@ -193,6 +219,8 @@ def index():
 @app.route('/upload', methods=['POST'])
 def handle_upload():
     global input_video_path
+    global sector
+    
     if 'videoFile' not in request.files:
         return 'No file part', 400
     file = request.files['videoFile']
@@ -203,6 +231,10 @@ def handle_upload():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
         input_video_path = file_path
+        
+        # Generate a new sector number for the uploaded video
+        sector = get_random_sector()
+        
         return 'File uploaded successfully', 200
     return 'File upload failed', 400
 
@@ -241,6 +273,101 @@ if __name__ == '__main__':
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#print for every secs
 
 # import os
 # import cv2

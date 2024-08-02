@@ -1,4 +1,5 @@
-<!doctype html>
+
+<!-- <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -36,26 +37,53 @@
             flex-direction: column;
             align-items: center;
         }
+        .content {
+            display: flex;
+            margin-top: 50px;
+        }
+        .video-container {
+            width: 70%;
+            padding-right: 20px;
+        }
+        .predictions-container {
+            width: 30%;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 2px solid #e0e0e0;
+        }
+        .predictions-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .predictions-container p {
+            font-size: 18px;
+            color: #333;
+        }
     </style>
-</head>
-<body>
+
     <div>
         <div class="header">
             <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
-            <!-- <div><h5 style="justify-content: center;">Species Detection</h5></div> -->
             <div class="botom">
                 <a href="/" style="margin-right: 15px;">Upload</a>
             </div>
         </div>
     </div>
 
-    <div class="container text-center mt-5">
-        <h1 class="display-4">Processed Video Stream</h1>
-        <div class="video-container mt-4">
-            <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="img-fluid">
+    <div class="container">
+        <div class="content">
+            <div class="video-container">
+                <h1 class="display-4 text-center">Processed Video Stream</h1>
+                <div class="mt-4">
+                    <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="img-fluid">
+                </div>
+            </div>
+            <div class="predictions-container">
+                <h2>Predictions</h2>
+                <div id="predictions"></div>
+            </div>
         </div>
     </div>
-
 
     <footer class="bg-light text-center text-lg-start mt-auto">
         <div class="container p-4">
@@ -68,5 +96,349 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+        async function fetchPredictions() {
+            const response = await fetch('{{ url_for('get_latest_predictions') }}');
+            const predictions = await response.json();
+            const predictionsDiv = document.getElementById('predictions');
+            predictionsDiv.innerHTML = '';
+            if (predictions.length > 0) {
+                predictions.forEach(prediction => {
+                    const p = document.createElement('p');
+                    p.textContent = `Detected label: ${prediction.label} with confidence: ${prediction.confidence.toFixed(2)}`;
+                    predictionsDiv.appendChild(p);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.textContent = 'No predictions made.';
+                predictionsDiv.appendChild(p);
+            }
+        }
+
+        // Fetch predictions every second
+        setInterval(fetchPredictions, 1000);
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        .header {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+        .botom {
+            display: flex;
+            color: black;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: black;
+        }
+        .content {
+            display: flex;
+            height: calc(100% - 160px); 
+            overflow: hidden;
+            flex: 1;
+        }
+        .video-container {
+            flex: 7.8; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 20px;
+            height: 100%;
+        }
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
+        .predictions-container {
+            flex: 2.2; 
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 2px solid #e0e0e0;
+            height: 100%;
+            overflow-y: auto; 
+        }
+        .predictions-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .display-4 {
+            margin-bottom: 30px;
+            text-align: center; 
+        }
+        footer {
+            flex-shrink: 0;
+            background-color: #f8f9fa;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
+        <div class="botom">
+            <a href="/" style="margin-right: 15px;">Upload</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="video-container">
+            <div>
+                <h1 class="display-4" style="margin-top: 20px; margin-bottom: -1px;">Processed Video Stream</h1>
+                <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="img-fluid">
+            </div>
+        </div>
+        <div class="predictions-container">
+            <h2>Predictions</h2>
+            <div id="predictions"></div>
+        </div>
+    </div>
+
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telungana</p>
+            <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let lastUpdateTimes = {};
+        let displayedLabels = new Set();
+
+        async function fetchPredictions() {
+            try {
+                const response = await fetch('/latest_predictions'); 
+                if (response.ok) {
+                    const predictions = await response.json();
+                    const predictionsDiv = document.getElementById('predictions');
+                    const now = Date.now();
+
+                    predictions.forEach(prediction => {
+                        const label = prediction.label;
+                        const confidence = prediction.confidence.toFixed(2);
+
+                        if (!displayedLabels.has(label) || !lastUpdateTimes[label] || now - lastUpdateTimes[label] > 5 * 60 * 1000) {
+                            if (!displayedLabels.has(label)) {
+                                displayedLabels.add(label);
+                            }
+                            
+                            const p = document.createElement('p');
+                            p.textContent = `Detected label: ${label} with confidence: ${confidence}`;
+                            predictionsDiv.appendChild(p);
+                            
+                            lastUpdateTimes[label] = now;
+                        }
+                    });
+                } else {
+                    console.error('Failed to fetch predictions:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching predictions:', error);
+            }
+        }
+
+        setInterval(fetchPredictions, 1000);
+    </script>
+    
 </body>
 </html>
+
+
+
+
+
+<!-- <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent scrolling */
+        }
+        .header {
+            background-color: #F8F9FA;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+        .botom {
+            display: flex;
+            color: black;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: black;
+        }
+        .content {
+            display: flex;
+            height: calc(100% - 160px); /* Adjust height to exclude header and footer */
+            overflow: hidden;
+            flex: 1;
+        }
+        .video-container {
+            flex: 7.8; /* 78% width */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 20px;
+            height: 100%;
+        }
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure video fits within the container */
+        }
+        .predictions-container {
+            flex: 2.2; /* 22% width */
+            background-color: #F8F9FA;
+            padding: 20px;
+            border-left: 2px solid #E0E0E0;
+            height: 100%;
+            overflow-y: auto; /* Scrollable content */
+        }
+        .predictions-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #F8F9FA;
+            z-index: 10;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        .display-4 {
+            margin-bottom: 30px;
+            text-align: center; /* Center align the title */
+        }
+        footer {
+            flex-shrink: 0;
+            background-color: #F8F9FA;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
+        <div class="botom">
+            <a href="/" style="margin-right: 15px;">Upload</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="video-container">
+            <div>
+                <h1 class="display-4" style="margin-top: 20px; margin-bottom: -1px;">Processed Video Stream</h1>
+                <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="img-fluid">
+            </div>
+        </div>
+        <div class="predictions-container">
+            <h2>Predictions</h2>
+            <div id="predictions"></div>
+        </div>
+    </div>
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telungana</p>
+            <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+        async function fetchPredictions() {
+            const response = await fetch('{{ url_for('get_latest_predictions') }}');
+            const predictions = await response.json();
+            const predictionsDiv = document.getElementById('predictions');
+            if (predictions.length > 0) {
+                predictions.forEach(prediction => {
+                    const p = document.createElement('p');
+                    p.textContent = `Detected label: ${prediction.label} with confidence: ${prediction.confidence.toFixed(2)}`;
+                    predictionsDiv.appendChild(p);
+                });
+            }
+        }
+        // Fetch predictions every second and keep appending
+        setInterval(fetchPredictions, 1000);
+    </script>
+</body>
+</html>-->

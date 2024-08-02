@@ -1,0 +1,266 @@
+<!-- <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacklisted Vehicles</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .crud-table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blacklisted Vehicles</h1>
+
+        <form method="POST" action="/blacklisted">
+            <div class="form-group">
+                <label for="vehicle_number">Vehicle Number</label>
+                <input type="text" id="vehicle_number" name="vehicle_number" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="sector">Sector</label>
+                <input type="text" id="sector" name="sector" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Vehicle</button>
+        </form>
+
+        <div class="crud-table">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vehicle Number</th>
+                        <th>Sector</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicles %}
+                    <tr>
+                        <td>{{ vehicle.id }}</td>
+                        <td>{{ vehicle.vehicle_number }}</td>
+                        <td>{{ vehicle.sector }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_vehicle', vehicle_id=vehicle.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        .header {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+        .botom {
+            display: flex;
+            color: black;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: black;
+        }
+        .content {
+            display: flex;
+            height: calc(100% - 160px); 
+            overflow: hidden;
+            flex: 1;
+        }
+        .video-container {
+            flex: 7.8; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 20px;
+            height: 100%;
+        }
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
+        .predictions-container {
+            flex: 2.2; 
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-left: 2px solid #e0e0e0;
+            height: 100%;
+            overflow-y: auto; 
+        }
+        .predictions-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .display-4 {
+            margin-bottom: 30px;
+            text-align: center; 
+        }
+        footer {
+            flex-shrink: 0;
+            background-color: #f8f9fa;
+            padding: 10px 0;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .crud-table {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
+        <div class="botom">
+            <a href="/" style="margin-right: 15px;">Upload</a>
+        </div>
+    </div>
+
+    
+
+    <div class="container">
+        <h1>Blacklisted Vehicles</h1>
+
+        <form method="POST" action="/blacklisted">
+            <div class="form-group">
+                <label for="vehicle_number">Vehicle Number</label>
+                <input type="text" id="vehicle_number" name="vehicle_number" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="sector">Sector</label>
+                <input type="text" id="sector" name="sector" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Vehicle</button>
+        </form>
+
+        <div class="crud-table">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vehicle Number</th>
+                        <th>Sector</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicles %}
+                    <tr>
+                        <td>{{ vehicle.id }}</td>
+                        <td>{{ vehicle.vehicle_number }}</td>
+                        <td>{{ vehicle.sector }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_vehicle', vehicle_id=vehicle.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+
+
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telungana</p>
+            <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let lastUpdateTimes = {};
+        let displayedLabels = new Set();
+
+        async function fetchPredictions() {
+            try {
+                const response = await fetch('/latest_predictions'); 
+                if (response.ok) {
+                    const predictions = await response.json();
+                    const predictionsDiv = document.getElementById('predictions');
+                    const now = Date.now();
+
+                    predictions.forEach(prediction => {
+                        const label = prediction.label;
+                        const confidence = prediction.confidence.toFixed(2);
+                        const sector = prediction.sector || 'No sector';  // Handle missing sector info
+
+                        if (!displayedLabels.has(label) || !lastUpdateTimes[label] || now - lastUpdateTimes[label] > 5 * 60 * 1000) {
+                            if (!displayedLabels.has(label)) {
+                                displayedLabels.add(label);
+                            }
+                            
+                            const p = document.createElement('p');
+                            p.textContent = `Detected label: ${label} with confidence: ${confidence} ${sector}`;
+                            predictionsDiv.appendChild(p);
+                            
+                            lastUpdateTimes[label] = now;
+                        }
+                    });
+                } else {
+                    console.error('Failed to fetch predictions:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching predictions:', error);
+            }
+        }
+
+        setInterval(fetchPredictions, 1000);
+    </script>
+    
+</body>
+</html>

@@ -267,6 +267,44 @@ def behaviour():
 def treefalls():
     return render_template('treefalls.html')
 
+
+@app.route('/blacklisted', methods=['GET', 'POST'])
+def blacklisted_vehicles():
+    if request.method == 'POST':
+        vehicle_number = request.form.get('vehicle_number')
+        sector = request.form.get('sector')
+        
+        try:
+            with connection.cursor() as cursor:
+                sql = "INSERT INTO blacklisted_vehicles (vehicle_number, sector) VALUES (%s, %s)"
+                cursor.execute(sql, (vehicle_number, sector))
+                connection.commit()
+        except Exception as e:
+            print(f"Error inserting into database: {e}")
+    
+    vehicles = []
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM blacklisted_vehicles"
+            cursor.execute(sql)
+            vehicles = cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching from database: {e}")
+    
+    return render_template('blacklisted.html', vehicles=vehicles)
+
+@app.route('/delete_vehicle/<int:vehicle_id>', methods=['POST'])
+def delete_vehicle(vehicle_id):
+    try:
+        with connection.cursor() as cursor:
+            sql = "DELETE FROM blacklisted_vehicles WHERE id = %s"
+            cursor.execute(sql, (vehicle_id,))
+            connection.commit()
+    except Exception as e:
+        print(f"Error deleting from database: {e}")
+    
+    return redirect(url_for('blacklisted_vehicles'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 

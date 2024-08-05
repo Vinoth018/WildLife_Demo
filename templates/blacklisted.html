@@ -204,6 +204,8 @@
                     </tr>
                     {% endfor %}
                 </tbody>
+                
+                
             </table>
         </div>
     </div>
@@ -213,9 +215,9 @@
 
 
     <footer class="bg-light text-center text-lg-start mt-auto">
-        <div class="container p-4">
-            <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telungana</p>
-            <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+        <div class="container p-4" style="margin-bottom: -20px;">
+            <p class="text-center" style="margin-bottom: -1px; margin-top: -40px;">Copyright © 2024 Government of Telungana</p>
+            <p class="text-center" style="margin-bottom: -57px;">Proof of Concept</p>
         </div>
     </footer>
 
@@ -260,6 +262,50 @@
         }
 
         setInterval(fetchPredictions, 1000);
+
+
+        function editVehicle(vehicleId) {
+        document.getElementById('vehicle-number-' + vehicleId).style.display = 'none';
+        document.getElementById('edit-vehicle-number-' + vehicleId).style.display = 'block';
+        document.getElementById('sector-' + vehicleId).style.display = 'none';
+        document.getElementById('edit-sector-' + vehicleId).style.display = 'block';
+        document.getElementById('save-button-' + vehicleId).style.display = 'inline-block';
+        document.getElementById('cancel-button-' + vehicleId).style.display = 'inline-block';
+    }
+
+    function cancelEdit(vehicleId) {
+        document.getElementById('vehicle-number-' + vehicleId).style.display = 'block';
+        document.getElementById('edit-vehicle-number-' + vehicleId).style.display = 'none';
+        document.getElementById('sector-' + vehicleId).style.display = 'block';
+        document.getElementById('edit-sector-' + vehicleId).style.display = 'none';
+        document.getElementById('save-button-' + vehicleId).style.display = 'none';
+        document.getElementById('cancel-button-' + vehicleId).style.display = 'none';
+    }
+
+    function saveVehicle(vehicleId) {
+        const vehicleNumber = document.getElementById('edit-vehicle-number-' + vehicleId).value;
+        const sector = document.getElementById('edit-sector-' + vehicleId).value;
+
+        fetch(`/edit_vehicle_inline/${vehicleId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ vehicle_number: vehicleNumber, sector: sector })
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('vehicle-number-' + vehicleId).textContent = vehicleNumber;
+                document.getElementById('sector-' + vehicleId).textContent = sector;
+                cancelEdit(vehicleId);
+            } else {
+                alert('Failed to save changes');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
     </script>
     
 </body>

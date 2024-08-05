@@ -133,6 +133,7 @@ from inference import get_model
 import supervision as sv
 from werkzeug.utils import secure_filename
 import random
+import datetime
 
 # Your Roboflow API key
 API_KEY = "rQ5TGMhiCaT0WP8Y0p6u"
@@ -167,12 +168,34 @@ def get_random_sector():
     sector_number = random.randint(1, 100)
     return f"SEC {sector_number}"
 
+# def save_predictions_to_db(predictions):
+#     try:
+#         with connection.cursor() as cursor:
+#             for prediction in predictions:
+#                 sql = "INSERT INTO detections (detected_label, confidence, sector) VALUES (%s, %s, %s)"
+#                 cursor.execute(sql, (prediction['label'], prediction['confidence'], prediction['sector']))
+#             connection.commit()
+#     except Exception as e:
+#         print(f"Error saving to database: {e}")
+
 def save_predictions_to_db(predictions):
     try:
         with connection.cursor() as cursor:
             for prediction in predictions:
-                sql = "INSERT INTO detections (detected_label, confidence, sector) VALUES (%s, %s, %s)"
-                cursor.execute(sql, (prediction['label'], prediction['confidence'], prediction['sector']))
+                # Check if the same label has been detected within the last 3 minutes
+                sql_check = """
+                    SELECT * FROM detections 
+                    WHERE detected_label = %s 
+                    AND sector = %s 
+                    AND timestamp > NOW() - INTERVAL 3 MINUTE
+                """
+                cursor.execute(sql_check, (prediction['label'], prediction['sector']))
+                recent_detection = cursor.fetchone()
+
+                if not recent_detection:
+                    # If no recent detection, insert the new detection
+                    sql_insert = "INSERT INTO detections (detected_label, confidence, sector, timestamp) VALUES (%s, %s, %s, %s)"
+                    cursor.execute(sql_insert, (prediction['label'], prediction['confidence'], prediction['sector'], datetime.datetime.now()))
             connection.commit()
     except Exception as e:
         print(f"Error saving to database: {e}")
@@ -304,6 +327,8 @@ def delete_vehicle(vehicle_id):
         print(f"Error deleting from database: {e}")
     
     return redirect(url_for('blacklisted_vehicles'))
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

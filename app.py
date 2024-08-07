@@ -125,6 +125,8 @@
 
 
 
+
+
 import os
 import cv2
 import pymysql.cursors
@@ -136,10 +138,10 @@ import random
 import datetime
 
 # Your Roboflow API key
-API_KEY = "rQ5TGMhiCaT0WP8Y0p6u"
+API_KEY = "DeRtV2c0IBAZ71gHnBey"
 
 # Load a pre-trained YOLOv8 model
-model = get_model(model_id="tiger-deer-poc/1", api_key=API_KEY)
+model = get_model(model_id="with-vehicle/1", api_key=API_KEY)
 
 # Create supervision annotators
 box_annotator = sv.BoxAnnotator()

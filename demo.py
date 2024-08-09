@@ -121,3 +121,55 @@
                                                                                 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#play slow
+
+# def generate_frames(input_video_path):
+#     global latest_predictions
+#     global sector
+
+#     cap = cv2.VideoCapture(input_video_path)
+#     while cap.isOpened():
+#         ret, frame = cap.read()
+#         if not ret:
+#             break
+#         # Resize the frame to 720p
+#         frame = cv2.resize(frame, (1280, 720))
+        
+#         results = model.infer(frame)[0]
+#         # Check if predictions are available
+#         if results.predictions:
+#             latest_predictions = [{"label": prediction.class_name, "confidence": prediction.confidence, "sector": sector} for prediction in results.predictions]
+#             save_predictions_to_db(latest_predictions)  # Save to database
+#         else:
+#             latest_predictions = []
+#         detections = sv.Detections.from_inference(results)
+#         annotated_frame = box_annotator.annotate(scene=frame, detections=detections)
+#         annotated_frame = label_annotator.annotate(scene=annotated_frame, detections=detections)
+#         ret, buffer = cv2.imencode('.jpg', annotated_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+#         if not ret:
+#             continue
+#         frame_bytes = buffer.tobytes()
+#         yield (b'--frame\r\n'
+#                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+#     cap.release()

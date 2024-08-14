@@ -1,3 +1,5 @@
+# using api key
+
 # import os
 # import cv2
 # import pymysql.cursors
@@ -197,21 +199,30 @@
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5000)
 
-
+                                                                                                        
 
 import os
 import cv2
 import pymysql.cursors
-from flask import Flask, Response, request, render_template, redirect, url_for, jsonify
+from flask import Flask, Response, request, render_template, redirect, url_for, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import random
 import datetime
 from ultralytics import YOLO  # Import YOLO from ultralytics
+from inference_sdk import InferenceHTTPClient
+import json
+import easyocr
+
+ocr_reader = easyocr.Reader(['en'])
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Define the output directory
+output_dir = 'output'
+os.makedirs(output_dir, exist_ok=True)
 
 input_video_path = None
 latest_predictions = []
@@ -219,6 +230,13 @@ sector = None  # Initialize sector variable
 
 # Load the pre-trained YOLOv8 model from the local file
 model = YOLO(r'C:\Users\vinothg\Desktop\Wild\TELANGANA MODEL POC.pt')
+
+CLIENT = InferenceHTTPClient(
+    api_url="https://detect.roboflow.com",
+    api_key="DeRtV2c0IBAZ71gHnBey"
+)
+
+ocr_results_file = os.path.join(output_dir, 'ocr_results.json')
 
 # MySQL database connection settings
 connection = pymysql.connect(
@@ -390,5 +408,128 @@ def delete_vehicle(vehicle_id):
     
     return redirect(url_for('blacklisted_vehicles'))
 
+@app.route('/vehicle')
+def vehicle_index():
+    return render_template('vehicle_index.html')
+
+@app.route('/uploads', methods=['POST'])
+def upload_video():
+    if 'video' not in request.files:
+        return redirect(url_for('index'))
+    
+    video_file = request.files['video']
+    if video_file.filename == '':
+        return redirect(url_for('index'))
+    
+    video_path = os.path.join(output_dir, video_file.filename)
+    video_file.save(video_path)
+
+    # Process the video and save frames
+    process_video(video_path)
+
+    return redirect(url_for('results'))
+
+def process_video(video_path):
+    video_capture = cv2.VideoCapture(video_path)
+    frame_number = 0
+    all_results = []
+
+    while video_capture.isOpened():
+        ret, frame = video_capture.read()
+        if not ret:
+            break
+        
+        # Resize the frame to reduce its size
+        frame = cv2.resize(frame, (640, 360))  # Resize to 640x360 pixels
+        
+        # Convert the frame to RGB
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_path = os.path.join(output_dir, f"frame_{frame_number}.jpg")
+        cv2.imwrite(frame_path, frame_rgb)
+        
+        # Perform inference to detect number plates
+        result = CLIENT.infer(frame_path, model_id="car-plate-detection-sctyn/3")
+        detections = parse_result(result)
+        draw_bounding_boxes(frame_rgb, detections)
+        
+        # Save the labeled frame
+        labeled_frame_path = os.path.join(output_dir, f"labeled_frame_{frame_number}.jpg")
+        cv2.imwrite(labeled_frame_path, cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR))
+
+        # Perform OCR on the detected areas and collect results
+        ocr_results = perform_ocr_on_cropped_images(detections, frame_rgb, frame_number)
+        all_results.extend(ocr_results)
+
+        frame_number += 1
+
+    video_capture.release()
+
+    # Save OCR results to a JSON file
+    with open(ocr_results_file, 'w') as f:
+        json.dump(all_results, f)
+
+def parse_result(result):
+    detections = []
+    for prediction in result['predictions']:
+        x = prediction['x']
+        y = prediction['y']
+        width = prediction['width']
+        height = prediction['height']
+        confidence = prediction['confidence']
+        class_name = prediction['class']
+        x_min = int(x - width / 2)
+        y_min = int(y - height / 2)
+        x_max = int(x + width / 2)
+        y_max = int(y + width / 2)
+        detections.append((x_min, y_min, x_max, y_max, confidence, class_name))
+    return detections
+
+def draw_bounding_boxes(image, detections):
+    for (x_min, y_min, x_max, y_max, confidence, class_name) in detections:
+        cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        cv2.putText(image, f"{class_name} ({confidence:.2f})", (x_min, y_min - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+def perform_ocr_on_cropped_images(detections, image_rgb, frame_number):
+    results = []
+    for idx, (x_min, y_min, x_max, y_max, confidence, class_name) in enumerate(detections):
+        cropped_image = image_rgb[y_min:y_max, x_min:x_max]
+        result = ocr_reader.readtext(cropped_image)
+        for bbox, text, score in result:
+            results.append({
+                'frame': frame_number,
+                'text': text,
+                'confidence': score
+            })
+            # print(f"Detected text from cropped image {idx}: '{text}' with confidence: {score:.2f}")
+    return results
+
+
+@app.route('/results')
+def results():
+    # List all labeled frames
+    labeled_frames = sorted([f for f in os.listdir(output_dir) if f.startswith('labeled_frame_')])
+    
+    # Load OCR results
+    if os.path.exists(ocr_results_file):
+        with open(ocr_results_file, 'r') as f:
+            ocr_results = json.load(f)
+    else:
+        ocr_results = []
+    
+    return render_template('results.html', frames=labeled_frames, ocr_results=ocr_results)
+
+@app.route('/frames/<path:filename>')
+def frames(filename):
+    return send_from_directory(output_dir, filename)
+
+@app.route('/ocr_results')
+def ocr_results():
+    if os.path.exists(ocr_results_file):
+        with open(ocr_results_file, 'r') as f:
+            return jsonify(json.load(f))
+    else:
+        return jsonify([])
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)

@@ -153,22 +153,6 @@ def video_feed():
 def get_latest_predictions():
     return jsonify(latest_predictions)
 
-@app.route('/fire')
-def fire():
-    return render_template('fire.html')
-
-@app.route('/poaching')
-def poaching():
-    return render_template('poaching.html')
-
-@app.route('/behaviour')
-def behaviour():
-    return render_template('behaviour.html')
-
-@app.route('/treefalls')
-def treefalls():
-    return render_template('treefalls.html')
-
 @app.route('/blacklisted', methods=['GET', 'POST'])
 def blacklisted_vehicles():
     if request.method == 'POST':
@@ -296,15 +280,38 @@ def perform_ocr_on_cropped_images(detections, image_rgb, frame_number, sector):
         cropped_image = image_rgb[y_min:y_max, x_min:x_max]
         ocr_results = ocr_reader.readtext(cropped_image)
         for bbox, text, score in ocr_results:
-            # Append the sector number to the detected text
-            detected_text_with_sector = f"{text} and {sector}"
+            # Check if the detected vehicle number is blacklisted
+            if is_vehicle_blacklisted(text):
+                blacklist_status = " - blacklisted vehicle"
+            else:
+                blacklist_status = ""
+
+            # Append the sector number and blacklist status to the detected text
+            detected_text_with_sector = f"{text} and {sector}{blacklist_status}"
             results.append({
                 'frame': frame_number,
                 'text': detected_text_with_sector,
                 'confidence': score
             })
-            # print(f"Detected text '{detected_text_with_sector}' with confidence {score:.2f}")
+
+            # Save the detected vehicle number to the database
+            save_vehicle_detection_to_db(text, sector, score)
+
+            print(f"Detected text '{detected_text_with_sector}' with confidence {score:.2f}")
     return results
+
+def is_vehicle_blacklisted(vehicle_number):
+    try:
+        with connection.cursor() as cursor:
+            sql = "SELECT * FROM blacklisted_vehicles WHERE vehicle_number = %s"
+            cursor.execute(sql, (vehicle_number,))
+            blacklisted_vehicle = cursor.fetchone()
+            return blacklisted_vehicle is not None
+    except Exception as e:
+        print(f"Error checking blacklisted vehicles: {e}")
+        return False
+
+
 
 
 @app.route('/results')
@@ -332,6 +339,16 @@ def ocr_results():
             return jsonify(json.load(f))
     else:
         return jsonify([])
+    
+
+def save_vehicle_detection_to_db(vehicle_number, sector, confidence):
+    try:
+        with connection.cursor() as cursor:
+            sql_insert = "INSERT INTO vehicle_number_detection (vehicle_number, sector, confidence) VALUES (%s, %s, %s)"
+            cursor.execute(sql_insert, (vehicle_number, sector, confidence))
+            connection.commit()
+    except Exception as e:
+        print(f"Error saving vehicle detection to database: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True)

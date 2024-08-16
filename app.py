@@ -135,7 +135,7 @@ def handle_upload():
         file.save(file_path)
         input_video_path = file_path
         
-        sector = get_random_sector()
+        sector = get_random_sector()  # Assign a new sector number for this video
         
         return 'File uploaded successfully', 200
     return 'File upload failed', 400
@@ -228,6 +228,8 @@ def upload_video():
     return redirect(url_for('results'))
 
 def process_video(video_path):
+    global sector
+    sector = get_random_sector()  # Generate a new sector number for each new video
     video_capture = cv2.VideoCapture(video_path)
     frame_number = 0
     all_results = []
@@ -254,8 +256,8 @@ def process_video(video_path):
         labeled_frame_path = os.path.join(output_dir, f"labeled_frame_{frame_number}.jpg")
         cv2.imwrite(labeled_frame_path, cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR))
 
-        # Perform OCR on the detected areas and collect results
-        ocr_results = perform_ocr_on_cropped_images(detections, frame_rgb, frame_number)
+        # Perform OCR on the detected areas and collect results, passing sector as an argument
+        ocr_results = perform_ocr_on_cropped_images(detections, frame_rgb, frame_number, sector)
         all_results.extend(ocr_results)
 
         frame_number += 1
@@ -288,18 +290,20 @@ def draw_bounding_boxes(image, detections):
         cv2.putText(image, f"{class_name} ({confidence:.2f})", (x_min, y_min - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-def perform_ocr_on_cropped_images(detections, image_rgb, frame_number):
+def perform_ocr_on_cropped_images(detections, image_rgb, frame_number, sector):
     results = []
     for idx, (x_min, y_min, x_max, y_max, confidence, class_name) in enumerate(detections):
         cropped_image = image_rgb[y_min:y_max, x_min:x_max]
-        result = ocr_reader.readtext(cropped_image)
-        for bbox, text, score in result:
+        ocr_results = ocr_reader.readtext(cropped_image)
+        for bbox, text, score in ocr_results:
+            # Append the sector number to the detected text
+            detected_text_with_sector = f"{text} and {sector}"
             results.append({
                 'frame': frame_number,
-                'text': text,
+                'text': detected_text_with_sector,
                 'confidence': score
             })
-            # print(f"Detected text from cropped image {idx}: '{text}' with confidence: {score:.2f}")
+            # print(f"Detected text '{detected_text_with_sector}' with confidence {score:.2f}")
     return results
 
 

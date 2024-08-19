@@ -27,7 +27,7 @@ latest_predictions = []
 sector = None  # Initialize sector variable
 
 # Load the pre-trained YOLOv8 model from the local file
-model = YOLO(r'C:\Users\vinothg\Desktop\Wild\TELANGANA MODEL POC.pt')
+model = YOLO(r'C:\Users\vinothg\Desktop\Wild\WildLife_Demo\TELANGANA MODEL POC.pt')
 
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
@@ -44,7 +44,7 @@ connection = pymysql.connect(
     database='wildlife',
     cursorclass=pymysql.cursors.DictCursor
 )
-
+                                               
 def get_random_sector():
     # Generate a random number between 1 and 100 for sectors
     sector_number = random.randint(1, 100)
@@ -55,7 +55,7 @@ def save_predictions_to_db(predictions):
         with connection.cursor() as cursor:
             for prediction in predictions:
                 # Check if the same label has been detected within the last 3 minutes
-                sql_check = """
+                sql_check = """                                   
                     SELECT * FROM detections 
                     WHERE detected_label = %s 
                     AND sector = %s 

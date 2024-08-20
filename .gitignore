@@ -7,3 +7,5 @@ myenv/
 *.log
 *.env
 .DS_Store
+output/
+uploads/

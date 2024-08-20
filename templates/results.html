@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -61,6 +61,9 @@
             height: 100%;
             overflow-y: auto; 
             margin-right: 20px;
+            font-size: 16px; 
+            font-weight: bold;
+            line-height: 1.6; 
         }
         .predictions-container h2 {
             font-size: 24px;
@@ -136,7 +139,7 @@
             while (shownFrames.has(frames[frameIndex])) {
                 frameIndex = (frameIndex + 1) % frames.length;
                 if (frameIndex === 0) return; // All frames have been shown
-            }
+            }   
     
             videoStream.src = `/frames/${frames[frameIndex]}`;
             shownFrames.add(frames[frameIndex]);
@@ -165,5 +168,187 @@
     </script>
     
     
+</body>
+</html> -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        .header {
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            flex-shrink: 0;
+        }
+        .botom {
+            display: flex;
+            color: black;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: black;
+        }
+        .content {
+            display: flex;
+            height: calc(100% - 160px); 
+            overflow: hidden;
+            flex: 1;
+            border: 0px;
+        }
+        .video-container {
+            flex: 7.8; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 20px;
+            height: 100%;
+            border: 0px;
+            overflow: hidden;
+        }
+        .video-container img {
+            width: auto; 
+            height: 100%; 
+            max-width: 100%; 
+            object-fit: contain; 
+        }
+        .predictions-container {
+            flex: 2.2; 
+            background-color: #f8f9fa;
+            padding-left: 20px;
+            border-left: 1px solid #e0e0e0;
+            height: 100%;
+            overflow-y: auto; 
+            margin-right: 20px;
+            font-size: 16px; 
+            font-weight: bold;
+            line-height: 1.6; 
+        }
+        .predictions-container h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+            padding-bottom: 10px;
+        }
+        .predictions-container p {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .display-4 {
+            margin-bottom: 30px;
+            text-align: center; 
+        }
+        footer {
+            flex-shrink: 0;
+            background-color: #f8f9fa;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
+        <div class="botom">
+            <a href="/vehicle" style="margin-right: 15px;">Upload</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="video-container">
+            <div>
+                <h1 class="display-4" style="margin-top: 20px; margin-bottom: -1px;">Processed Video Stream</h1>
+                <img id="videoStream" style="border: transparent;" src="{{ url_for('frames', filename=frames[0]) }}" alt="Video Stream" class="img-fluid">
+            </div>
+        </div>
+        <div class="predictions-container" style="background-color: rgb(233, 243, 243);">
+            <h2 style="background-color:  rgb(233, 243, 243); padding-top: 15px;">Predictions</h2>
+            <div id="predictions" style="padding-right: 20px;"></div>
+        </div>
+    </div>
+
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telangana</p>
+            <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        let frames = JSON.parse('{{ frames|tojson|safe }}');
+        let predictions = JSON.parse('{{ ocr_results|tojson|safe }}');
+
+        if (!Array.isArray(frames)) frames = [];
+        if (!Array.isArray(predictions)) predictions = [];
+
+        const videoStream = document.getElementById('videoStream');
+        const predictionsDiv = document.getElementById('predictions');
+        let frameIndex = 0;
+        const shownFrames = new Set();
+        const shownLabels = new Map();
+
+        function showNextFrame() {
+            if (frames.length === 0) return;
+
+            while (shownFrames.has(frames[frameIndex])) {
+                frameIndex = (frameIndex + 1) % frames.length;
+                if (frameIndex === 0) return;
+            }   
+
+            videoStream.src = `/frames/${frames[frameIndex]}`;
+            shownFrames.add(frames[frameIndex]);
+            frameIndex = (frameIndex + 1) % frames.length; 
+            setTimeout(showNextFrame, 200);
+        }
+
+        function displayPredictions() {
+            const now = Date.now();
+            predictions.forEach(result => {
+                const label = result.text;
+                const confidence = result.confidence.toFixed(2);
+
+                if (!shownLabels.has(label) || now - shownLabels.get(label) > 3 * 60 * 1000) {
+                    shownLabels.set(label, now);
+
+                    const p = document.createElement('p');
+                    p.textContent = `Detected text '${label}' with confidence ${confidence}`;
+
+                    // Check if the label indicates a blacklisted vehicle
+                    if (label.includes("blacklisted vehicle")) {
+                        p.style.backgroundColor = 'red';
+                        p.style.color = 'white';
+                    } else {
+                        p.style.backgroundColor = '#228B22';
+                        p.style.color = 'white';
+                    }
+
+                    predictionsDiv.appendChild(p);
+                }
+            });
+        }
+
+        showNextFrame();
+        displayPredictions();
+    </script>
 </body>
 </html>

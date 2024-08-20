@@ -31,7 +31,7 @@ model = YOLO(r'C:\Users\vinothg\Desktop\Wild\WildLife_Demo\TELANGANA MODEL POC.p
 
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    api_key="DeRtV2c0IBAZ71gHnBey"
+    api_key="37lrgGWsOUQk3rAqpBPC"
 )
 
 ocr_results_file = os.path.join(output_dir, 'ocr_results.json')

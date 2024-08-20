@@ -55,7 +55,7 @@ CREATE TABLE blacklisted_vehicles (
 );
 
 
-
+                        
 3. Vehicle Number Detection Table
 CREATE TABLE vehicle_number_detection (
     id INT AUTO_INCREMENT PRIMARY KEY,

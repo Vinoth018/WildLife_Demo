@@ -91,3 +91,136 @@
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Species Detection</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/cover3.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0; 
+        }
+        .botom {
+            display: flex;
+            color: white;
+            padding-top: 10px;
+        }
+        a {
+            padding-right: 20px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .centered-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1; /* Makes sure the form stays centered */
+        }
+        footer {
+            background: transparent; /* Remove white background */
+            color: white; /* Adjust text color if needed */
+        }
+        .footer-overlay {
+            background-color: rgba(0, 0, 0, 0.5); /* Optional: Semi-transparent overlay */
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" >
+        <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
+        <div class="botom">
+            <a href="/">Species Detection</a>
+            <a> | </a>
+            <!-- <a href="/fire">Fire Detection</a>
+            <a> | </a>
+            <a href="/poaching">Poaching Detection</a>
+            <a> | </a>
+            <a href="/behaviour">Behaviour Detection</a>
+            <a> | </a>
+            <a href="/treefalls">Tree Falls Detection</a>
+            <a> | </a> -->
+            <a href="/vehicle">Vehicle Number Detection</a>
+            <a> | </a>
+            <a href="/blacklisted">Blacklisted Vehicles</a>
+        </div>
+    </div>
+
+    <div class="container text-center mt-5">
+        <h1 class="display-4" style="color: white; font-weight: 400;">Artificial Intelligence (AI) based Solution for Wild Life Conservation</h1>
+        <p class="lead" style="color: white; font-weight: 400;">Identify animal species, poachers, and vehicles by uploading your videos with ease.</p>
+        <form id="uploadForm" enctype="multipart/form-data" class="mt-4 centered-form">
+            <div class="form-group text-center">
+                <input type="file" id="videoFile" name="videoFile" accept="video/*" class="form-control-file" style="margin-left: 80px;">
+            </div>
+            <button type="submit" class="btn btn-success btn-lg mt-3">Start Detection</button>
+        </form>
+    </div>
+
+    <footer class="mt-auto">
+        <div class="footer-overlay text-center text-lg-start">
+            <div class="container p-4">
+                <p class="text-center" style="margin-bottom: -1px; margin-top: -10px;">Copyright © 2024 Government of Telangana</p>
+                <p class="text-center" style="margin-bottom: -17px;">Proof of Concept</p>
+            </div>
+        </div>
+    </footer> 
+
+    <script>
+        const form = document.getElementById('uploadForm');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                window.location.href = "/play";
+            } else {
+                alert("Failed to upload video.");
+            }
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html> -->

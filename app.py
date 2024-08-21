@@ -311,9 +311,6 @@ def is_vehicle_blacklisted(vehicle_number):
         print(f"Error checking blacklisted vehicles: {e}")
         return False
 
-
-
-
 @app.route('/results')
 def results():
     # List all labeled frames
@@ -339,7 +336,6 @@ def ocr_results():
             return jsonify(json.load(f))
     else:
         return jsonify([])
-    
 
 def save_vehicle_detection_to_db(vehicle_number, sector, confidence):
     try:

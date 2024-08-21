@@ -235,7 +235,7 @@
             border-left: 1px solid #e0e0e0;
             height: 100%;
             overflow-y: auto; 
-            margin-right: 20px;
+            /* margin-right: 20px; */
             font-size: 16px; 
             font-weight: bold;
             line-height: 1.6; 
@@ -269,7 +269,7 @@
     <div class="header">
         <div><img src="{{ url_for('static', filename='images/Twilight.png') }}" alt="Twilight" style="height: 45px; width: 213px; margin-left: 15px;"></div>
         <div class="botom">
-            <a href="/" style="margin-right: 15px;">Upload Video</a>
+            <a href="/" style="margin-right: 15px;">Back</a>
         </div>
     </div>
 
@@ -300,7 +300,7 @@
     <script>
         let lastUpdateTimes = {};
         let displayedLabels = new Set();
-
+    
         async function fetchPredictions() {
             try {
                 const response = await fetch('/latest_predictions'); 
@@ -308,32 +308,38 @@
                     const predictions = await response.json();
                     const predictionsDiv = document.getElementById('predictions');
                     const now = Date.now();
-
+    
                     predictions.forEach(prediction => {
                         const label = prediction.label;
                         const confidence = prediction.confidence.toFixed(2);
                         const sector = prediction.sector || 'No sector';  // Handle missing sector info
-
+                        let message = `Detected label: ${label} with confidence: ${confidence} ${sector}`;
+    
+                        // Add a poaching warning message if the label is Poacher or vehicle
+                        if (["Poacher", "vehicle"].includes(label)) {
+                            message += " - There might be a possibility of poaching";
+                        }
+    
                         if (!displayedLabels.has(label) || !lastUpdateTimes[label] || now - lastUpdateTimes[label] > 5 * 60 * 1000) {
                             if (!displayedLabels.has(label)) {
                                 displayedLabels.add(label);
                             }
                             
                             const p = document.createElement('p');
-                            p.textContent = `Detected label: ${label} with confidence: ${confidence} ${sector}`;
+                            p.textContent = message;
                             
                             // Set the background color based on the detected label
                             if (["Tiger", "Leopard", "deer", "Sloth Bear", "elephant"].includes(label)) {
-                                p.style.backgroundColor = '#228B22';
-                                p.style.color = 'white';
+                                p.style.color = '#228B22';
+                                // p.style.color = 'white';
                             } else if (["Poacher", "vehicle"].includes(label)) {
-                                p.style.backgroundColor = 'red ';
-                                p.style.color = 'white';
+                                p.style.color = 'red ';
+                                // p.style.color = 'white';
                             } else if (["smoke", "Fire"].includes(label)) {
-                                p.style.backgroundColor = '#FF6700';
-                                p.style.color = 'white';
+                                p.style.color = '#FF6700';
+                                // p.style.color = 'white';
                             }
-
+    
                             predictionsDiv.appendChild(p);
                             
                             lastUpdateTimes[label] = now;
@@ -346,9 +352,10 @@
                 console.error('Error fetching predictions:', error);
             }
         }
-
+    
         setInterval(fetchPredictions, 500);
     </script>
+    
     
 </body>
 </html>

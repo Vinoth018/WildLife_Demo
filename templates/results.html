@@ -227,7 +227,7 @@
         }
         .predictions-container {
             flex: 2.2; 
-            background-color: #f8f9fa;
+            /* background-color: #f8f9fa; */
             padding-left: 20px;
             border-left: 1px solid #e0e0e0;
             height: 100%;
@@ -242,7 +242,7 @@
             margin-bottom: 20px;
             position: sticky;
             top: 0;
-            background-color: #f8f9fa;
+            /* background-color: #f8f9fa; */
             z-index: 10;
             padding-bottom: 10px;
         }
@@ -277,8 +277,8 @@
                 <img id="videoStream" style="border: transparent;" src="{{ url_for('frames', filename=frames[0]) }}" alt="Video Stream" class="img-fluid">
             </div>
         </div>
-        <div class="predictions-container" style="background-color: rgb(233, 243, 243);">
-            <h2 style="background-color:  rgb(233, 243, 243); padding-top: 15px;">Predictions</h2>
+        <div class="predictions-container">
+            <h2 style="padding-top: 15px;">Predictions</h2>
             <div id="predictions" style="padding-right: 20px;"></div>
         </div>
     </div>
@@ -335,11 +335,11 @@
 
                     // Check if the label indicates a blacklisted vehicle
                     if (label.includes("blacklisted vehicle")) {
-                        p.style.backgroundColor = 'red';
-                        p.style.color = 'white';
+                        p.style.color = 'red';
+                        // p.style.color = 'white';
                     } else {
-                        p.style.backgroundColor = '#228B22';
-                        p.style.color = 'white';
+                        p.style.color = '#228B22';
+                        // p.style.color = 'white';
                     }
 
                     predictionsDiv.appendChild(p);
